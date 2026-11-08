@@ -41,6 +41,10 @@ mutation {
 
 **Result:** Fig's lastWatered became the time I ran it. Restarted the server and it was still there.
 
+## Client cache
+
+Adding a plant refetches rooms (the list is nested by room). Delete evicts the plant from the cache. Watering is optimistic so lastWatered jumps immediately.
+
 # What connects everything
 
 `roomId` on the plant. Care events sit on the plant document. `lastWatered` is the newest WATER event, not its own field.
