@@ -1,13 +1,46 @@
 # Houseplant journal
 
-Same GraphQL API as ACS 4330, now on MongoDB. See [PLAN.md](PLAN.md) for embed vs reference.
+Last course's plant API, now in Mongo. Notes on embed vs reference are in [PLAN.md](PLAN.md).
 
 ```bash
-cd server && npm install && npm run dev
+cd server && npm run dev
+cd client && npm run dev
 ```
 
-Put the Atlas URI in `server/.env`. Data persists across restarts. An empty database gets the original four plants.
+Empty db seeds Monty, Fig, Snake, Basil.
+
+## plants
+
+```graphql
+{
+  plants {
+    name
+    room {
+      name
+    }
+    lastWatered
+  }
+}
+```
+
+**Result:** Fig had no lastWatered. The others had the seed dates.
+
+## water a plant
+
+```graphql
+mutation {
+  addCareEvent(plantId: "PASTE_ID", kind: WATER) {
+    kind
+    plant {
+      name
+      lastWatered
+    }
+  }
+}
+```
+
+**Result:** Fig's lastWatered became the time I ran it. Restarted the server and it was still there.
 
 # What connects everything
 
-Plants store `roomId`. Nested resolvers join rooms and plants. Care events are embedded on the plant, so `lastWatered` is still computed from that list.
+`roomId` on the plant. Care events sit on the plant document. `lastWatered` is the newest WATER event, not its own field.

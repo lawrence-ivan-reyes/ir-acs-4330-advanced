@@ -1,24 +1,23 @@
 # Plan: Houseplant journal
 
-Same app as ACS 4330: plants by room, plus a care log. This course puts it on MongoDB, then auth, cache, pagination, and deploy.
+Same types as last course. This week I put them in Mongo instead of arrays.
 
 ## Types
 
-- **Room** — id, name, sunlight, plants
-- **Plant** — id, name, species, room, careEvents, lastWatered
-- **CareEvent** — id, kind (WATER / FERTILIZE / REPOT), note, at, plant
+Room, Plant, CareEvent. CareKind is WATER / FERTILIZE / REPOT.
 
 ## Relationships
 
-| Relationship | Choice | Why |
-|---|---|---|
-| Plant → Room | **Reference** `roomId` | A room is listed on its own (`rooms`) and shared by many plants. |
-| Room → [Plant] | Nested resolver | `Plant.find({ roomId })`. `roomId` is indexed. |
-| Plant → [CareEvent] | **Embed** | A care log only exists on that plant. We never query all events globally. Deleting a plant deletes its log. |
-| CareEvent → Plant | Parent document | The event lives inside the plant, so the nested resolver uses the parent. |
+Plant → Room is a **reference** (`roomId`). I query rooms on their own and more than one plant can be in a room.
 
-`lastWatered` is still computed: newest embedded WATER event, or null.
+Room → plants is a nested resolver, `Plant.find({ roomId })`. Indexed.
+
+Plant → care events is **embedded**. A watering doesn't exist without the plant and I never list every event in the whole db. Delete the plant, the log goes with it.
+
+CareEvent → plant is just the parent document.
+
+lastWatered isn't stored. Newest WATER, or null if it's never been watered.
 
 ## Week 1
 
-Mongoose models, nested resolvers, validation. Seed three rooms and four plants if the database is empty.
+Models + nested resolvers. Empty db gets the original 3 rooms / 4 plants.

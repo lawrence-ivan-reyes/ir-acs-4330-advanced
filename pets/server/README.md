@@ -1,8 +1,6 @@
-# Pets server
+# Pets
 
-Apollo Server 5 + MongoDB. Run `npm run dev` and open http://localhost:4000.
-
-Put the Atlas connection string in `.env` as `MONGO_URI`. That file is not committed.
+`npm run dev` → http://localhost:4000
 
 ## Add a shelter
 
@@ -14,6 +12,8 @@ mutation {
   }
 }
 ```
+
+**Result:** Happy Tails. Copy the `id` for the next one.
 
 ## Add a pet
 
@@ -28,7 +28,9 @@ mutation {
 }
 ```
 
-## Shelters with their pets
+**Result:** Biscuit, shelter Happy Tails
+
+## Shelters with pets
 
 ```graphql
 {
@@ -42,9 +44,9 @@ mutation {
 }
 ```
 
-**Result:** pets grouped under each shelter
+**Result:** Happy Tails had Biscuit and Noodle. Paw Place had Pip, Clover, and Mango.
 
-## Validation error
+## dragon
 
 ```graphql
 mutation {
@@ -54,12 +56,12 @@ mutation {
 }
 ```
 
-**Result:** Mongoose rejects `dragon` because species is an enum
+**Result:** `species: \`dragon\` is not a valid enum value`
 
-## Delete a shelter
+## deleteShelter
 
-`deleteShelter` refuses if the shelter still has pets. Pets are their own records; deleting the shelter would leave them pointing at nothing.
+I don't delete a shelter if it still has pets. Pets are their own documents so I'd end up with pets pointing at nothing.
 
 # What connects everything
 
-The database stores `shelterId`. Nested resolvers `Pet.shelter` and `Shelter.pets` turn that ID into objects, same idea as the plant journal.
+`shelterId` on the pet. Nested resolvers fill in `shelter` and `pets`.
