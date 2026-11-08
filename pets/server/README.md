@@ -13,7 +13,7 @@ http://localhost:4000
 
 ## Notes
 
-- Pets store `shelterId`. Nested resolvers fill in `shelter` / `pets`.
-- `species` is an enum: cat, dog, bird, rabbit, other.
-- `deleteShelter` fails if the shelter still has pets.
-- Mutations that change data require a login. Adding a shelter is admin-only. You can only update/delete your own pets.
+- Pets store `shelterId`; nested resolvers fill in `shelter` / `pets`
+- `species` is an enum: cat, dog, bird, rabbit, other
+- `deleteShelter` fails if the shelter still has pets
+- Mutations that change data require a login; adding a shelter is admin-only; you can only update/delete your own pets

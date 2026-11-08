@@ -22,15 +22,15 @@ Empty database seeds four plants. First account to register is an admin.
 
 ## Data
 
-- **Room** is its own collection. Plants point at it with `roomId`.
-- **Care events** live on the plant document. Deleting a plant deletes the log.
-- `lastWatered` is computed (newest WATER event).
+- **Room** is its own collection; plants point at it with `roomId`
+- **Care events** live on the plant document; deleting a plant deletes the log
+- `lastWatered` is computed (newest WATER event)
 
 ## Client
 
-- Add plant refetches rooms (lists are nested by room).
-- Watering is optimistic.
-- Delete evicts the plant from the cache.
-- Care and delete are hidden unless you're logged in. Delete only shows on plants you own.
+- Add plant refetches rooms (lists are nested by room)
+- Watering is optimistic
+- Delete evicts the plant from the cache
+- Care and delete are hidden unless you're logged in; delete only shows on plants you own
 
 See [PLAN.md](PLAN.md) for embed vs reference.
