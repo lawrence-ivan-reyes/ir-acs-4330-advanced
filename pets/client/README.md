@@ -17,5 +17,5 @@ http://localhost:5173
 
 - **Add** writes the new pet into the cache (`cache.modify`). No extra refetch.
 - **Delete** removes it (`cache.evict`).
-- **Rename** just returns `id` + `name` — Apollo patches the existing object.
+- **Rename** just returns `id` + `name`. Apollo patches the existing object.
 - Add and delete are optimistic. Pets with a `temp-` id are faded until the server replies.

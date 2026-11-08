@@ -1,6 +1,6 @@
 # ACS 4330 Advanced
 
-Pets is the lesson app. Houseplant journal is the project.
+Course work for Advanced GraphQL: a Pets API built alongside each lesson, and a houseplant journal as the final project.
 
 ## Stack
 
@@ -29,10 +29,10 @@ Mongo is local (`mongodb://127.0.0.1:27017`). Connection strings live in each se
 
 ## Progress
 
-- [x] Week 1 — MongoDB
-- [x] Week 2 — Apollo cache
-- [x] Week 3 — Auth
-- [ ] Week 4 — Pagination
-- [ ] Week 5 — Subscriptions
-- [ ] Week 6 — DataLoader
-- [ ] Week 7 — Deploy
+- [x] Week 1: MongoDB
+- [x] Week 2: Apollo cache
+- [x] Week 3: Auth
+- [ ] Week 4: Pagination
+- [ ] Week 5: Subscriptions
+- [ ] Week 6: DataLoader
+- [ ] Week 7: Deploy
