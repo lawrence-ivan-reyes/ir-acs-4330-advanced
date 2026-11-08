@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from '@apollo/client/react'
-import { GET_PLANT, ADD_CARE_EVENT, DELETE_PLANT, NEW_EVENT } from './queries'
+import { GET_PLANT, ADD_CARE_EVENT, DELETE_PLANT, NEW_EVENT, ME } from './queries'
 import PlantArt, { CareIcon } from './PlantArt'
 
 const KINDS = ['WATER', 'FERTILIZE', 'REPOT']
@@ -8,6 +8,8 @@ const date = (iso) =>
   new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 
 export default function PlantDetail({ id, onDeleted }) {
+  const { data: meData } = useQuery(ME)
+  const me = meData?.me
   const { data, loading, error } = useQuery(GET_PLANT, { variables: { id } })
   const [addCareEvent, careResult] = useMutation(ADD_CARE_EVENT, {
     update(cache, { data }) {
@@ -40,6 +42,7 @@ export default function PlantDetail({ id, onDeleted }) {
   if (error) return <p className="error">{error.message}</p>
   const plant = data?.plant
   if (!plant) return <p className="empty">Plant not found.</p>
+  const canEdit = me && (me.role === 'admin' || plant.createdBy?.id === me.id)
 
   const handleDelete = () =>
     deletePlant({
@@ -92,17 +95,19 @@ export default function PlantDetail({ id, onDeleted }) {
           ))}
         </ul>
 
-        <div className="actions">
-          {KINDS.map((kind) => (
-            <button key={kind} onClick={() => logCare(kind)}>
-              <CareIcon kind={kind} />
-              {kind.toLowerCase()}
+        {canEdit && (
+          <div className="actions">
+            {KINDS.map((kind) => (
+              <button key={kind} onClick={() => logCare(kind)}>
+                <CareIcon kind={kind} />
+                {kind.toLowerCase()}
+              </button>
+            ))}
+            <button className="delete" onClick={handleDelete}>
+              delete
             </button>
-          ))}
-          <button className="delete" onClick={handleDelete}>
-            delete
-          </button>
-        </div>
+          </div>
+        )}
         {actionError && <p className="error">{actionError.message}</p>}
       </div>
       <PlantArt id={id} size={240} />

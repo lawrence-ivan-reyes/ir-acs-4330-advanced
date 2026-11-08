@@ -19,7 +19,8 @@ const plantSchema = new mongoose.Schema({
     required: true,
     index: true
   },
-  careEvents: [careEventSchema]
+  careEvents: [careEventSchema],
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 })
 
 export default mongoose.model('Plant', plantSchema)

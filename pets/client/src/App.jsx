@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client/react'
-import { GET_PETS, ADD_PET, UPDATE_PET, DELETE_PET, NEW_PET } from './queries.js'
+import { GET_PETS, ADD_PET, UPDATE_PET, DELETE_PET, NEW_PET, ME } from './queries.js'
+import Auth from './Auth.jsx'
 
 export default function App() {
+  const { data: meData } = useQuery(ME)
+  const me = meData?.me
   const { data, loading, error } = useQuery(GET_PETS)
   const [name, setName] = useState('')
   const [species, setSpecies] = useState('cat')
@@ -42,7 +45,8 @@ export default function App() {
             __typename: 'Pet',
             id: `temp-${Date.now()}`,
             name,
-            species
+            species,
+            createdBy: me ? { __typename: 'User', id: me.id } : null
           }
         }
       })
@@ -56,26 +60,31 @@ export default function App() {
   if (error) return <p>{error.message}</p>
 
   const actionError = addResult.error || deleteResult.error
+  const canEdit = (pet) =>
+    me && (me.role === 'admin' || pet.createdBy?.id === me.id)
 
   return (
     <main>
       <h1>Pets</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Name"
-          required
-        />
-        <select value={species} onChange={(e) => setSpecies(e.target.value)}>
-          <option>cat</option>
-          <option>dog</option>
-          <option>bird</option>
-          <option>rabbit</option>
-          <option>other</option>
-        </select>
-        <button>Add</button>
-      </form>
+      <Auth />
+      {me && (
+        <form onSubmit={handleSubmit}>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Name"
+            required
+          />
+          <select value={species} onChange={(e) => setSpecies(e.target.value)}>
+            <option>cat</option>
+            <option>dog</option>
+            <option>bird</option>
+            <option>rabbit</option>
+            <option>other</option>
+          </select>
+          <button>Add</button>
+        </form>
+      )}
       {actionError && <p className="error">{actionError.message}</p>}
       <ul>
         {data.pets.map((pet) => (
@@ -83,26 +92,32 @@ export default function App() {
             key={pet.id}
             style={{ opacity: String(pet.id).startsWith('temp-') ? 0.5 : 1 }}
           >
-            <input
-              defaultValue={pet.name}
-              onBlur={(e) => {
-                const next = e.target.value.trim()
-                if (next && next !== pet.name) {
-                  updatePet({ variables: { id: pet.id, name: next } })
-                }
-              }}
-            />
+            {canEdit(pet) ? (
+              <input
+                defaultValue={pet.name}
+                onBlur={(e) => {
+                  const next = e.target.value.trim()
+                  if (next && next !== pet.name) {
+                    updatePet({ variables: { id: pet.id, name: next } })
+                  }
+                }}
+              />
+            ) : (
+              <span>{pet.name}</span>
+            )}
             <span>{pet.species}</span>
-            <button
-              onClick={() =>
-                deletePet({
-                  variables: { id: pet.id },
-                  optimisticResponse: { deletePet: true }
-                }).catch(() => {})
-              }
-            >
-              delete
-            </button>
+            {canEdit(pet) && (
+              <button
+                onClick={() =>
+                  deletePet({
+                    variables: { id: pet.id },
+                    optimisticResponse: { deletePet: true }
+                  }).catch(() => {})
+                }
+              >
+                delete
+              </button>
+            )}
           </li>
         ))}
       </ul>

@@ -1,4 +1,6 @@
+import bcrypt from 'bcryptjs'
 import { GraphQLError } from 'graphql'
+import { signToken, requireAuth, requireRole, requireOwnerOrAdmin } from './auth.js'
 
 function badInput(message) {
   throw new GraphQLError(message, { extensions: { code: 'BAD_USER_INPUT' } })
@@ -6,6 +8,34 @@ function badInput(message) {
 
 async function requireRoom(Room, roomId) {
   if (!(await Room.exists({ _id: roomId }))) badInput(`No room with id ${roomId}`)
+}
+
+async function authPayload(_, { email, password }, { User }, isRegister) {
+  if (isRegister) {
+    if (password.length < 8) {
+      throw new GraphQLError('Password must be at least 8 characters', {
+        extensions: { code: 'BAD_USER_INPUT' }
+      })
+    }
+    if (await User.findOne({ email })) {
+      throw new GraphQLError('Email already in use', {
+        extensions: { code: 'BAD_USER_INPUT' }
+      })
+    }
+    const passwordHash = await bcrypt.hash(password, 10)
+    const role = (await User.countDocuments()) === 0 ? 'admin' : 'user'
+    const user = await User.create({ email, passwordHash, role })
+    return { token: signToken(user), user }
+  }
+
+  const user = await User.findOne({ email })
+  const valid = user && (await bcrypt.compare(password, user.passwordHash))
+  if (!valid) {
+    throw new GraphQLError('Invalid email or password', {
+      extensions: { code: 'UNAUTHENTICATED' }
+    })
+  }
+  return { token: signToken(user), user }
 }
 
 const waterAt = (plant) => {
@@ -17,37 +47,47 @@ const waterAt = (plant) => {
 
 const resolvers = {
   Query: {
+    me: (_, __, { user, User }) => (user ? User.findById(user.userId).exec() : null),
     plants: (_, __, { Plant }) => Plant.find().exec(),
     plant: (_, { id }, { Plant }) => Plant.findById(id).exec(),
     rooms: (_, __, { Room }) => Room.find().exec(),
     room: (_, { id }, { Room }) => Room.findById(id).exec()
   },
   Mutation: {
-    addRoom: (_, args, { Room }) => Room.create(args),
-    addPlant: async (_, { name, species, roomId }, { Plant, Room }) => {
-      await requireRoom(Room, roomId)
-      return Plant.create({ name, species, roomId })
+    register: (_, args, ctx) => authPayload(_, args, ctx, true),
+    login: (_, args, ctx) => authPayload(_, args, ctx, false),
+    addRoom: (_, args, context) => {
+      requireRole(context, 'admin')
+      return context.Room.create(args)
     },
-    updatePlant: async (_, { id, name, species, roomId }, { Plant, Room }) => {
-      const fields = {}
-      if (name != null) fields.name = name
-      if (species != null) fields.species = species
-      if (roomId != null) {
-        await requireRoom(Room, roomId)
-        fields.roomId = roomId
-      }
-      return Plant.findByIdAndUpdate(id, fields, {
-        returnDocument: 'after',
-        runValidators: true
-      }).exec()
+    addPlant: async (_, { name, species, roomId }, context) => {
+      const user = requireAuth(context)
+      await requireRoom(context.Room, roomId)
+      return context.Plant.create({ name, species, roomId, createdBy: user.userId })
     },
-    deletePlant: async (_, { id }, { Plant }) => {
-      const result = await Plant.findByIdAndDelete(id)
-      return result !== null
+    updatePlant: async (_, { id, name, species, roomId }, context) => {
+      const plant = await context.Plant.findById(id)
+      if (!plant) return null
+      requireOwnerOrAdmin(context, plant)
+      if (roomId != null) await requireRoom(context.Room, roomId)
+      plant.set({
+        ...(name != null && { name }),
+        ...(species != null && { species }),
+        ...(roomId != null && { roomId })
+      })
+      return plant.save()
     },
-    addCareEvent: async (_, { plantId, kind, note }, { Plant }) => {
-      const plant = await Plant.findById(plantId)
+    deletePlant: async (_, { id }, context) => {
+      const plant = await context.Plant.findById(id)
+      if (!plant) return false
+      requireOwnerOrAdmin(context, plant)
+      await plant.deleteOne()
+      return true
+    },
+    addCareEvent: async (_, { plantId, kind, note }, context) => {
+      const plant = await context.Plant.findById(plantId)
       if (!plant) badInput(`No plant with id ${plantId}`)
+      requireOwnerOrAdmin(context, plant)
       plant.careEvents.push({ kind, note: note || null })
       await plant.save()
       return plant.careEvents.at(-1)
@@ -60,7 +100,9 @@ const resolvers = {
     room: (plant, _, { Room }) => Room.findById(plant.roomId).exec(),
     careEvents: (plant) =>
       [...plant.careEvents].sort((a, b) => b.at - a.at),
-    lastWatered: waterAt
+    lastWatered: waterAt,
+    createdBy: (plant, _, { User }) =>
+      plant.createdBy ? User.findById(plant.createdBy).exec() : null
   },
   CareEvent: {
     at: (event) => event.at.toISOString(),

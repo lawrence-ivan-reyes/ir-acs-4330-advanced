@@ -1,50 +1,36 @@
 # Houseplant journal
 
-Last course's plant API, now in Mongo. Notes on embed vs reference are in [PLAN.md](PLAN.md).
+Track plants by room and log watering, fertilizer, and repots.
+
+## Stack
+
+Apollo Server 5 · MongoDB · React · Apollo Client 4
+
+## Run
 
 ```bash
-cd server && npm run dev
-cd client && npm run dev
+cd server && npm i && npm run dev
+cd client && npm i && npm run dev
 ```
 
-Empty db seeds Monty, Fig, Snake, Basil.
+| | URL |
+|---|---|
+| GraphQL | http://localhost:4000 |
+| App | http://localhost:5173 |
 
-## plants
+Empty database seeds four plants. First account to register is an admin.
 
-```graphql
-{
-  plants {
-    name
-    room {
-      name
-    }
-    lastWatered
-  }
-}
-```
+## Data
 
-**Result:** Fig had no lastWatered. The others had the seed dates.
+- **Room** is its own collection. Plants point at it with `roomId`.
+- **Care events** live on the plant document. Deleting a plant deletes the log.
+- `lastWatered` is computed (newest WATER event).
 
-## water a plant
+## Client
 
-```graphql
-mutation {
-  addCareEvent(plantId: "PASTE_ID", kind: WATER) {
-    kind
-    plant {
-      name
-      lastWatered
-    }
-  }
-}
-```
+- Add plant refetches rooms (lists are nested by room).
+- Watering is optimistic.
+- Delete evicts the plant from the cache.
+- Care and delete are hidden unless you're logged in. Delete only shows on plants you own.
 
-**Result:** Fig's lastWatered became the time I ran it. Restarted the server and it was still there.
-
-## Client cache
-
-Adding a plant refetches rooms (the list is nested by room). Delete evicts the plant from the cache. Watering is optimistic so lastWatered jumps immediately.
-
-# What connects everything
-
-`roomId` on the plant. Care events sit on the plant document. `lastWatered` is the newest WATER event, not its own field.
+See [PLAN.md](PLAN.md) for embed vs reference.

@@ -106,6 +106,18 @@ form {
   margin-top: auto;
 }
 
+.auth {
+  margin-top: 0;
+}
+
+.auth button[type='button'] {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  opacity: 0.6;
+  font-size: 0.8rem;
+}
+
 input,
 select {
   width: 100%;

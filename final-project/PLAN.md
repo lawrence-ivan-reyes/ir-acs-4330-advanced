@@ -1,23 +1,18 @@
-# Plan: Houseplant journal
+# Plan
 
-Same types as last course. This week I put them in Mongo instead of arrays.
-
-## Types
-
-Room, Plant, CareEvent. CareKind is WATER / FERTILIZE / REPOT.
+Houseplant journal: rooms, plants, care log.
 
 ## Relationships
 
-Plant → Room is a **reference** (`roomId`). I query rooms on their own and more than one plant can be in a room.
+| | How | Why |
+|---|---|---|
+| Plant → Room | reference `roomId` | Rooms are listed on their own and shared |
+| Room → plants | nested resolver | `Plant.find({ roomId })`, indexed |
+| Plant → care events | embed | A log entry doesn't exist without the plant |
+| CareEvent → plant | parent document | Event is stored on the plant |
 
-Room → plants is a nested resolver, `Plant.find({ roomId })`. Indexed.
+`lastWatered` is not stored. It's the newest WATER event, or null.
 
-Plant → care events is **embedded**. A watering doesn't exist without the plant and I never list every event in the whole db. Delete the plant, the log goes with it.
+## Auth
 
-CareEvent → plant is just the parent document.
-
-lastWatered isn't stored. Newest WATER, or null if it's never been watered.
-
-## Week 1
-
-Models + nested resolvers. Empty db gets the original 3 rooms / 4 plants.
+Login required for every mutation. You can only edit/delete plants you created. Adding a room is admin-only. First registered user is admin.

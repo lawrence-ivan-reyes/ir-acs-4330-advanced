@@ -5,6 +5,17 @@ const typeDefs = `#graphql
     REPOT
   }
 
+  type User {
+    id: ID!
+    email: String!
+    role: String!
+  }
+
+  type AuthPayload {
+    token: String!
+    user: User!
+  }
+
   type Room {
     id: ID!
     name: String!
@@ -19,6 +30,7 @@ const typeDefs = `#graphql
     room: Room!
     careEvents: [CareEvent!]!
     lastWatered: String
+    createdBy: User
   }
 
   type CareEvent {
@@ -30,6 +42,7 @@ const typeDefs = `#graphql
   }
 
   type Query {
+    me: User
     plants: [Plant!]!
     plant(id: ID!): Plant
     rooms: [Room!]!
@@ -37,6 +50,8 @@ const typeDefs = `#graphql
   }
 
   type Mutation {
+    register(email: String!, password: String!): AuthPayload!
+    login(email: String!, password: String!): AuthPayload!
     addRoom(name: String!, sunlight: String): Room!
     addPlant(name: String!, species: String, roomId: ID!): Plant!
     updatePlant(id: ID!, name: String, species: String, roomId: ID): Plant
