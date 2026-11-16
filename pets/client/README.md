@@ -19,3 +19,5 @@ http://localhost:5173
 - **Delete** removes it (`cache.evict`)
 - **Rename** returns `id` + `name` so Apollo patches the existing object
 - Add and delete are optimistic; `temp-` ids are faded until the server replies
+- **Pages** is offset pagination (Prev/Next)
+- **Feed** is cursor pagination with Load more; filter by species

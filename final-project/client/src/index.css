@@ -172,6 +172,10 @@ section {
   text-align: center;
 }
 
+.welcome .more {
+  display: inline-block;
+}
+
 .shelf {
   display: flex;
   flex-wrap: wrap;
@@ -194,6 +198,15 @@ section {
 
 .pot:hover {
   transform: translateY(-6px);
+}
+
+.more {
+  justify-self: center;
+  margin: 0 auto 24px;
+  padding: 8px 18px;
+  border: 1px solid var(--forest);
+  border-radius: 999px;
+  color: var(--forest);
 }
 
 .empty {

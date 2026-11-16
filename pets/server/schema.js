@@ -26,10 +26,33 @@ const typeDefs = `#graphql
     createdBy: User
   }
 
+  type PetPage {
+    items: [Pet!]!
+    total: Int!
+    hasMore: Boolean!
+  }
+
+  type PetEdge {
+    node: Pet!
+    cursor: String!
+  }
+
+  type PageInfo {
+    hasNextPage: Boolean!
+    endCursor: String
+  }
+
+  type PetConnection {
+    edges: [PetEdge!]!
+    pageInfo: PageInfo!
+  }
+
   type Query {
     me: User
     pets: [Pet!]!
     pet(id: ID!): Pet
+    petsPage(limit: Int = 10, offset: Int = 0): PetPage!
+    petsConnection(first: Int = 10, after: String, species: String): PetConnection!
     shelters: [Shelter!]!
     shelter(id: ID!): Shelter
   }

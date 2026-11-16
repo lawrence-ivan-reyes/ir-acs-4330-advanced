@@ -7,12 +7,13 @@ import resolvers from './resolvers.js'
 import Room from './models/Room.js'
 import Plant from './models/Plant.js'
 import User from './models/User.js'
-import seedIfEmpty from './seed.js'
+import seedIfEmpty, { seedMorePlants } from './seed.js'
 import { getUserFromToken } from './auth.js'
 
 await mongoose.connect(process.env.MONGO_URI)
 console.log('Connected to MongoDB')
 await seedIfEmpty({ Room, Plant })
+await seedMorePlants({ Room, Plant })
 
 const server = new ApolloServer({ typeDefs, resolvers })
 

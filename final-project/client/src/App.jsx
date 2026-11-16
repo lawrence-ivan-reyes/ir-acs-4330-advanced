@@ -4,8 +4,8 @@ import { GET_ROOMS, ME } from './queries'
 import PlantList from './PlantList'
 import AddPlant from './AddPlant'
 import PlantDetail from './PlantDetail'
-import PlantArt from './PlantArt'
 import Auth from './Auth'
+import PlantShelf from './PlantShelf'
 
 export default function App() {
   const [selectedId, setSelectedId] = useState(null)
@@ -30,17 +30,7 @@ export default function App() {
         {selectedId ? (
           <PlantDetail id={selectedId} onDeleted={() => setSelectedId(null)} />
         ) : (
-          <div className="welcome">
-            <div className="shelf">
-              {rooms.flatMap((room) => room.plants).map((plant) => (
-                <button key={plant.id} className="pot" onClick={() => setSelectedId(plant.id)}>
-                  <PlantArt id={plant.id} size={120} />
-                  {plant.name}
-                </button>
-              ))}
-            </div>
-            <p className="empty">Pick a plant to see how it’s doing.</p>
-          </div>
+          <PlantShelf onSelect={setSelectedId} />
         )}
       </section>
     </main>

@@ -32,5 +32,6 @@ Empty database seeds four plants. First account to register is an admin.
 - Watering is optimistic
 - Delete evicts the plant from the cache
 - Care and delete are hidden unless you're logged in; delete only shows on plants you own
+- Home shelf uses cursor pagination (Load more)
 
 See [PLAN.md](PLAN.md) for embed vs reference.

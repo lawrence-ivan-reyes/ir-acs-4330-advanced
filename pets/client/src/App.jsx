@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client/react'
 import { GET_PETS, ADD_PET, UPDATE_PET, DELETE_PET, NEW_PET, ME } from './queries.js'
 import Auth from './Auth.jsx'
+import PetPages from './PetPages.jsx'
+import PetFeed from './PetFeed.jsx'
 
 export default function App() {
   const { data: meData } = useQuery(ME)
@@ -11,6 +13,7 @@ export default function App() {
   const [species, setSpecies] = useState('cat')
 
   const [addPet, addResult] = useMutation(ADD_PET, {
+    refetchQueries: ['GetPetsPage', 'GetPetsConnection'],
     update(cache, { data }) {
       cache.modify({
         fields: {
@@ -121,6 +124,8 @@ export default function App() {
           </li>
         ))}
       </ul>
+      <PetPages />
+      <PetFeed />
     </main>
   )
 }

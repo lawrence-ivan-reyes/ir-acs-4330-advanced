@@ -38,6 +38,10 @@ async function authPayload(_, { email, password }, { User }, isRegister) {
   return { token: signToken(user), user }
 }
 
+const encodeCursor = (id) => Buffer.from(String(id)).toString('base64')
+const decodeCursor = (cursor) => Buffer.from(cursor, 'base64').toString('utf8')
+const cap = (n) => Math.min(Math.max(n, 1), 50)
+
 const waterAt = (plant) => {
   const event = [...plant.careEvents]
     .sort((a, b) => b.at - a.at)
@@ -50,6 +54,24 @@ const resolvers = {
     me: (_, __, { user, User }) => (user ? User.findById(user.userId).exec() : null),
     plants: (_, __, { Plant }) => Plant.find().exec(),
     plant: (_, { id }, { Plant }) => Plant.findById(id).exec(),
+    plantsConnection: async (_, { first, after }, { Plant }) => {
+      const limit = cap(first)
+      const filter = after ? { _id: { $gt: decodeCursor(after) } } : {}
+      const docs = await Plant.find(filter).sort({ _id: 1 }).limit(limit + 1).exec()
+      const hasNextPage = docs.length > limit
+      const plants = docs.slice(0, limit)
+      const edges = plants.map((plant) => ({
+        node: plant,
+        cursor: encodeCursor(plant.id)
+      }))
+      return {
+        edges,
+        pageInfo: {
+          hasNextPage,
+          endCursor: edges.at(-1)?.cursor ?? null
+        }
+      }
+    },
     rooms: (_, __, { Room }) => Room.find().exec(),
     room: (_, { id }, { Room }) => Room.findById(id).exec()
   },

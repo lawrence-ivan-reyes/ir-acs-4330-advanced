@@ -32,7 +32,7 @@ Mongo is local (`mongodb://127.0.0.1:27017`). Connection strings live in each se
 - [x] Week 1: MongoDB
 - [x] Week 2: Apollo cache
 - [x] Week 3: Auth
-- [ ] Week 4: Pagination
+- [x] Week 4: Pagination
 - [ ] Week 5: Subscriptions
 - [ ] Week 6: DataLoader
 - [ ] Week 7: Deploy

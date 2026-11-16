@@ -1,9 +1,9 @@
 import { useMutation } from '@apollo/client/react'
-import { ADD_PLANT, GET_ROOMS } from './queries'
+import { ADD_PLANT, GET_ROOMS, GET_PLANTS_CONNECTION } from './queries'
 
 export default function AddPlant({ rooms, onAdded }) {
   const [addPlant, { loading, error }] = useMutation(ADD_PLANT, {
-    refetchQueries: [GET_ROOMS]
+    refetchQueries: [GET_ROOMS, GET_PLANTS_CONNECTION]
   })
 
   async function handleSubmit(e) {

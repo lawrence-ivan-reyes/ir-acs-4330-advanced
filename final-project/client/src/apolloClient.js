@@ -1,5 +1,6 @@
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client'
 import { SetContextLink } from '@apollo/client/link/context'
+import { relayStylePagination } from '@apollo/client/utilities'
 
 const httpLink = new HttpLink({ uri: 'http://localhost:4000/' })
 
@@ -15,5 +16,13 @@ const authLink = new SetContextLink(({ headers }) => {
 
 export const client = new ApolloClient({
   link: authLink.concat(httpLink),
-  cache: new InMemoryCache()
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          plantsConnection: relayStylePagination()
+        }
+      }
+    }
+  })
 })

@@ -36,6 +36,23 @@ export const REGISTER = gql`
   }
 `
 
+export const GET_PLANTS_CONNECTION = gql`
+  query GetPlantsConnection($first: Int!, $after: String) {
+    plantsConnection(first: $first, after: $after) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`
+
 export const GET_ROOMS = gql`
   query GetRooms {
     rooms {

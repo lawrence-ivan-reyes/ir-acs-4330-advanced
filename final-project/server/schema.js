@@ -41,10 +41,26 @@ const typeDefs = `#graphql
     plant: Plant!
   }
 
+  type PlantEdge {
+    node: Plant!
+    cursor: String!
+  }
+
+  type PageInfo {
+    hasNextPage: Boolean!
+    endCursor: String
+  }
+
+  type PlantConnection {
+    edges: [PlantEdge!]!
+    pageInfo: PageInfo!
+  }
+
   type Query {
     me: User
     plants: [Plant!]!
     plant(id: ID!): Plant
+    plantsConnection(first: Int = 6, after: String): PlantConnection!
     rooms: [Room!]!
     room(id: ID!): Room
   }

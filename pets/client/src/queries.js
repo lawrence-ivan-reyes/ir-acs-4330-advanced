@@ -36,6 +36,39 @@ export const REGISTER = gql`
   }
 `
 
+export const GET_PETS_PAGE = gql`
+  query GetPetsPage($limit: Int!, $offset: Int!) {
+    petsPage(limit: $limit, offset: $offset) {
+      total
+      hasMore
+      items {
+        id
+        name
+        species
+      }
+    }
+  }
+`
+
+export const GET_PETS_CONNECTION = gql`
+  query GetPetsConnection($first: Int!, $after: String, $species: String) {
+    petsConnection(first: $first, after: $after, species: $species) {
+      edges {
+        cursor
+        node {
+          id
+          name
+          species
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`
+
 export const GET_PETS = gql`
   query GetPets {
     pets {

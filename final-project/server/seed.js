@@ -34,3 +34,21 @@ export default async function seedIfEmpty({ Room, Plant }) {
 
   console.log('Seeded rooms and plants')
 }
+
+export async function seedMorePlants({ Room, Plant }) {
+  if ((await Plant.countDocuments()) >= 16) return
+  const rooms = await Room.find()
+  if (!rooms.length) return
+  const extras = [
+    'Pothos', 'ZZ', 'Aloe', 'Fern', 'Jade', 'Calathea',
+    'Peperomia', 'Spider', 'Ficus', 'Dracaena', 'Oxalis', 'Philodendron'
+  ]
+  await Plant.create(
+    extras.map((name, i) => ({
+      name,
+      species: name,
+      roomId: rooms[i % rooms.length].id
+    }))
+  )
+  console.log('Seeded extra plants')
+}
